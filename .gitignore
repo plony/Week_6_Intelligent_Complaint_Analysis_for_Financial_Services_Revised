@@ -1,0 +1,11 @@
+venv
+data
+rag_pipeline.log
+.env
+*.log
+# RAG specific
+vector_store/
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/ # if you use Jupyter notebooks

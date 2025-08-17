@@ -1,0 +1,20 @@
+# requirements.txt
+pandas
+numpy
+scikit-learn
+matplotlib
+seaborn
+nltk # For tokenization if needed, though sentence-transformers often handles it
+sentence-transformers
+langchain
+faiss-cpu # Or faiss-gpu if you have a compatible GPU
+python-dotenv # For .env file
+langchain-community
+tqdm # For progress bars if you uncomment tqdm.pandas()
+transformers
+accelerate
+torch
+loguru
+pypdf
+reportlab
+gradio # Add this line
