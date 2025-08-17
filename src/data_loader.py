@@ -1,11 +1,12 @@
 import pandas as pd
 
+
 def load_complaints_data(file_path):
     """
     Loads the CFPB complaints dataset from a CSV file.
     """
     try:
-        df = pd.read_csv(file_path, encoding='utf-8')
+        df = pd.read_csv(file_path, encoding="utf-8")
         print(f"Successfully loaded data from {file_path}")
         return df
     except FileNotFoundError:

@@ -3,10 +3,12 @@
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 from typing import List
 
+
 class EmbeddingModel:
     """
     A class to manage the embedding model for the RAG pipeline.
     """
+
     def __init__(self, model_name: str = "sentence-transformers/all-MiniLM-L6-v2"):
         """
         Initializes the embedding model.
