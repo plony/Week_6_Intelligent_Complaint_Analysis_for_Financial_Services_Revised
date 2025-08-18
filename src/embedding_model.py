@@ -1,7 +1,6 @@
 # src/embedding_model.py
 
 from langchain_community.embeddings import SentenceTransformerEmbeddings
-from typing import List
 
 
 class EmbeddingModel:
@@ -19,19 +18,19 @@ class EmbeddingModel:
         self.model = SentenceTransformerEmbeddings(model_name=model_name)
         print(f"Embedding model '{model_name}' loaded successfully.")
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         """
         Generates embeddings for a list of text documents.
 
         Args:
-            texts (List[str]): A list of text strings.
+            texts (list[str]): A list of text strings.
 
         Returns:
-            List[List[float]]: A list of corresponding vector embeddings.
+            list[list[float]]: A list of corresponding vector embeddings.
         """
         return self.model.embed_documents(texts)
 
-    def embed_query(self, query: str) -> List[float]:
+    def embed_query(self, query: str) -> list[float]:
         """
         Generates an embedding for a single query string.
 
@@ -39,6 +38,6 @@ class EmbeddingModel:
             query (str): The query string.
 
         Returns:
-            List[float]: The vector embedding for the query.
+            list[float]: The vector embedding for the query.
         """
         return self.model.embed_query(query)

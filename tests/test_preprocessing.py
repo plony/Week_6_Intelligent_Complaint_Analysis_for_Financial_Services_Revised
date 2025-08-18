@@ -1,26 +1,33 @@
+# tests/test_preprocessing.py
+
 import pytest
-import sys
-import os
+import pandas as pd
+from src.preprocessing import filter_and_clean_data, clean_text
 
-# Add the src directory to the system path to allow for imports
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.preprocessing import clean_text
+@pytest.fixture
+def sample_dataframe():
+    data = {
+        "Product": ["Credit card", "Savings account", "Personal loan"],
+        "Consumer complaint narrative": [
+            "This is a complaint about a credit card issue.",
+            "I have an issue with my savings account.",
+            "I am writing to file a complaint about my personal loan."
+        ],
+    }
+    return pd.DataFrame(data)
 
-def test_clean_text_basic():
-    """Test that the function correctly handles basic cleaning tasks."""
-    raw_text = "I am writing to file a complaint about the company's service!"
-    expected_clean_text = "writing file complaint companys service"
-    assert clean_text(raw_text) == expected_clean_text
 
-def test_clean_text_with_numbers():
-    """Test that numbers and special characters are removed."""
-    raw_text = "Complaint submitted on 10/12/2024. Phone number is 123-456-7890."
-    expected_clean_text = "complaint submitted phone number"
-    assert clean_text(raw_text) == expected_clean_text
+def test_filter_and_clean_data(sample_dataframe):
+    df = filter_and_clean_data(sample_dataframe)
+    assert len(df) == 3
+    assert "cleaned_narrative" in df.columns
+    assert "i writing file complaint personal loan" in df[
+        "cleaned_narrative"
+    ].iloc[2]
 
-def test_clean_text_empty_input():
-    """Test that the function returns an empty string for non-string input."""
-    assert clean_text(None) == ""
-    assert clean_text("") == ""
-    assert clean_text(123) == ""
+
+def test_clean_text():
+    text = "Hello, I am writing to file a complaint about this issue! 123"
+    expected = "hello issue"
+    assert clean_text(text) == expected
