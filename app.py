@@ -1,63 +1,72 @@
 # app.py
 
 import gradio as gr
-import os
-import sys
+from src.rag_agent import RAGChatbotAgent
 
-# Add the project's src directory to the system path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
-
-from rag_agent import RAGChatbotAgent
-
-# --- Global Initialization (done once) ---
+# Initialize the RAG agent
 agent = RAGChatbotAgent()
 
-# --- Core Chatbot Logic for Gradio Interface ---
-def chatbot_response(question):
+
+def chatbot_response(query):
     """
-    Generates a response to a user question using the RAG agent.
-    
-    Args:
-        question (str): The user's input question.
-        
-    Returns:
-        tuple: A tuple containing the AI-generated answer and formatted sources.
+    Handles the user query, retrieves an answer from the RAG agent,
+    and formats the output.
     """
-    if not question:
-        return "Please enter a question to get a response.", ""
+    response = agent.answer_question(query)
 
-    response = agent.answer_question(question)
-    generated_answer = response["answer"]
+    answer = response["answer"]
+    source_docs = response["source_documents"]
+
+    source_text = ""
+    if source_docs:
+        source_text = "### Sources\n"
+        for i, doc in enumerate(source_docs):
+            source_text += f"**Source {i+1}:** {doc.page_content}\n"
     
-    # Format the source documents for display
-    source_markdown = ""
-    if response["source_documents"]:
-        source_markdown += "### Sources:\n"
-        for i, doc in enumerate(response["source_documents"]):
-            source_markdown += f"- **Source {i+1} (Product: {doc.metadata.get('product', 'N/A')}, Company: {doc.metadata.get('company', 'N/A')}):**\n"
-            source_markdown += f"  > {doc.page_content}\n\n"
-    
-    return generated_answer, source_markdown
+    return answer, source_text
 
-# --- Gradio Interface ---
-iface = gr.Interface(
-    fn=chatbot_response,
-    inputs=gr.Textbox(lines=2, label="Your Question"),
-    outputs=[
-        gr.Textbox(label="AI-Generated Answer", lines=5),
-        gr.Markdown(label="Sources Used")
-    ],
-    title="CrediTrust Complaint Analysis Chatbot",
-    description="Ask me questions about customer complaints and I'll provide an answer based on the provided data. "
-                "The chatbot is powered by a RAG (Retrieval-Augmented Generation) pipeline.",
-    live=False,
-    flagging_mode="never"
-)
 
-# Launch the Gradio app
+# Create the Gradio interface
+with gr.Blocks(title="CrediTrust Complaint Analysis Chatbot") as demo:
+    gr.Markdown(
+        """
+        # CrediTrust Complaint Analysis Chatbot
+        Ask me questions about customer complaints and I'll provide an answer
+        based on the provided data. The chatbot is powered by a RAG
+        (Retrieval-Augmented Generation) pipeline.
+        """
+    )
+    with gr.Row():
+        with gr.Column(scale=1):
+            query_input = gr.Textbox(
+                label="Your Question",
+                placeholder="What are the most common complaints "
+                            "about student loans?",
+                lines=5
+            )
+            submit_button = gr.Button("Submit", variant="primary")
+            clear_button = gr.Button("Clear")
+
+        with gr.Column(scale=2):
+            answer_output = gr.Textbox(
+                label="AI-Generated Answer",
+                interactive=False,
+                lines=10
+            )
+
+    sources_output = gr.Markdown(label="Sources")
+
+    submit_button.click(
+        fn=chatbot_response,
+        inputs=query_input,
+        outputs=[answer_output, sources_output]
+    )
+    clear_button.click(
+        fn=lambda: ("", ""),
+        inputs=[],
+        outputs=[answer_output, sources_output]
+    )
+
+
 if __name__ == "__main__":
-    # Ensure the vector store is built before running the app
-    if not agent.is_loaded:
-        print("Error: Vector store is not loaded. Please run 'python src/vector_store_builder.py' first.")
-    else:
-        iface.launch()
+    demo.launch()

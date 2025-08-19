@@ -26,9 +26,9 @@ class RAGChatbotAgent:
         self.is_loaded = self.vector_store_manager.load_index()
 
         # Initialize the LLM generator from Hugging Face Hub
-        repo_id = "google/flan-t5-xxl"
-        self.llm = HuggingFaceEndpoint(repo_id=repo_id, temperature=0.5,
-                                       max_length=512)
+        # Using a model known to be available on the free inference API
+        repo_id = "tiiuae/falcon-7b-instruct"
+        self.llm = HuggingFaceEndpoint(repo_id=repo_id, temperature=0.5)
         
         # Create the robust prompt template
         self.prompt_template = """
@@ -54,6 +54,7 @@ class RAGChatbotAgent:
             chain_type_kwargs={"prompt": self.prompt}
         )
         print("RAG agent initialized and linked to the LLM.")
+        print(f"Using LLM model: {repo_id}") # Added for confirmation
 
     def answer_question(self, query: str) -> Dict[str, Any]:
         """
